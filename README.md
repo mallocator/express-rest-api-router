@@ -1,5 +1,5 @@
 # express-rest-api-router
-[![npm version](https://badge.fury.io/js/elasticsearch-exporter.svg)](http://badge.fury.io/js/elasticsearch-exporter)
+[![npm version](https://badge.fury.io/js/express-rest-api-router.svg)](http://badge.fury.io/js/express-rest-api-router)
 [![Build Status](https://travis-ci.org/mallocator/express-rest-api-router.svg?branch=master)](https://travis-ci.org/mallocator/express-rest-api-router)
 [![Coverage Status](https://coveralls.io/repos/mallocator/express-rest-api-router/badge.svg?branch=master&service=github)](https://coveralls.io/github/mallocator/express-rest-api-router?branch=master)
 [![Dependency Status](https://david-dm.org/mallocator/express-rest-api-router.svg)](https://david-dm.org/mallocator/express-rest-api-router) 
