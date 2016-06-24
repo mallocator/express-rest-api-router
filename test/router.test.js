@@ -5,7 +5,6 @@ var stream = require('stream');
 
 var expect = require('chai').expect;
 var express = require('express');
-var httpMocks = require('node-mocks-http');
 var request = require('supertest');
 
 var Router = require('..');
