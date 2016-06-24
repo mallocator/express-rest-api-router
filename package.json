@@ -1,0 +1,44 @@
+{
+  "name": "express-rest-api-router",
+  "version": "0.0.1",
+  "description": "A router that automatically verifies incoming parameters while creating a json document of all available endpoints.",
+  "license": "Apache-2.0",
+  "author": "Ravi Gairola <mallox@pyxzl.net>",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mallocator/express-rest-api-router.git"
+  },
+  "keywords": [
+    "express",
+    "rest",
+    "api",
+    "router",
+    "json",
+    "parameters",
+    "params",
+    "default",
+    "values"
+  ],
+  "bugs": {
+    "url": "https://github.com/mallocator/express-rest-api-router/issues",
+    "email": "mallox@pyxzl.net"
+  },
+  "homepage": "https://github.com/mallocator/express-rest-api-router#readme",
+  "engine": {
+    "node": ">=6.0"
+  },
+  "peerDependencies": {
+    "express": "^4"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "express": "^4",
+    "istanbul": "^0.4",
+    "mocha": "^2",
+    "supertest": "^1"
+  },
+  "scripts": {
+    "test": "istanbul cover _mocha -- --recursive"
+  }
+}
