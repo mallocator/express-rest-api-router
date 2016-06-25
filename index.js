@@ -7,11 +7,13 @@ var verifier = require('./lib/verifier');
 
 /**
  * @typedef {Object} RouterConfig
- * @property {string} [description]             A description for this endpoint
  * @property {parseCb} [error]                  An error handler that overrides the default behavior for all params on this endpoint
  * @property {parseCb} [validate]               A validator the overrides the default behavior for all params on this endpoint
  * @property {parseCb} [success]                A success handler that overrides the default behavior for all params on this endpoint
- * @property {Object.<string, ParamDef|String>} params A map with param definitions for each passed in parameter
+ * @property {string} [mapEndpoint='/']         The default endpoint with which the api map can be retrieved
+ * @property {boolean} [caseSensitive=false]    Express router option to handle paths respecting case
+ * @property {boolean} [mergeParams=false]      Express router option to preserve req.params from parent router
+ * @property {boolean} [strict=false]           Express router option to not ignore trailing slashes on endpoints
  */
 
 /**
@@ -25,6 +27,34 @@ var verifier = require('./lib/verifier');
  * @property {parseCb} [error]          An error handler that overrides the default behavior for this parameter
  * @property {parseCb} [validate]       A validator the overrides the default behavior for this parameter
  * @property {parseCb} [success]        A success handler that overrides the default behavior for this parameter
+ */
+
+/**
+ * @typedef {Object} Context
+ * @property {function} router                              The original express router
+ * @property {Object.<string, EndpointConfig>} endpoints    A map of endpoints to store configurations in
+ */
+
+/**
+ * @typedef {Object} EndpointConfig
+ * @property {string} [description]             A description for this endpoint
+ * @property {parseCb} [error]                  A global error handler that overrides the default behavior
+ * @property {parseCb} [validate]               A global validator the overrides the default behavior
+ * @property {parseCb} [success]                A global success handler that overrides the default behavior
+ * @property {Object.<string, ParamDef|String>} params A map with param definitions for each passed in parameter
+ */
+
+/**
+ * @typedef {Object} ParseResult
+ * @property {boolean} error    True if this callback is the result of a processing error
+ */
+
+/**
+ * @callback parseCb
+ * @param {ParseResult} error         An error callback that has information such as endpoints or missing parameters
+ * @oaran {ClientRequest} req   The http request object
+ * @param {ServerResponse} res  The http response object
+ * @param {function} next       The chaining function that allows other handlers to be executed after this one
  */
 
 /**
