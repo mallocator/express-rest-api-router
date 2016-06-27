@@ -20,6 +20,8 @@ describe('Router', () => {
     });
 
     it('should verify all incoming parameters and complain about missing ones', done => {
+        process.env.NODE_ENV = 'development';
+
         var router = new Router();
         router.get('/test', {
             params: {
@@ -35,6 +37,13 @@ describe('Router', () => {
         var app = express();
         app.use(router);
 
-        request(app).get('/test').expect(422).end(done);
+        request(app).get('/test').expect(422, {
+            error: 'Required parameters are missing',
+            params: {
+                var1: { error: 'not set', type: 'number' },
+                var3: { error: 'not set', type: 'string' },
+                var5: { error: 'not set', type: 'boolean' }
+            }
+        }).end(done);
     });
 });

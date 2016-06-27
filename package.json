@@ -32,7 +32,8 @@
     "express": "^4"
   },
   "devDependencies": {
-    "chai": "^3.5.0",
+    "chai": "^3",
+    "coveralls": "^2",
     "express": "^4",
     "istanbul": "^0.4",
     "mocha": "^2",

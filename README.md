@@ -83,10 +83,44 @@ The router comes with sensible default values preconfigured, but various behavio
  
 ```
 new Router({
-    error: (value, req, res, next) => {},       // A global error handler that overrides the default behavior
-    validate: (value, req, res, next) => {},    // A global validator the overrides the default behavior
-    mapEndpoint: '/'                            // The endpoint where the rest definition can be retrieved from
+    error: (value, req, res, next) => {},               // A global error handler that overrides the default behavior
+    success: (value, req, res, next) => {},             // A success error handler that overrides the default behavior
+    validate: (value, req, res, next) => {},            // A global validator the overrides the default behavior
+    paramMap: 'arguments',                              // The property on the request object on which to find parsed parameters
+    paramOrder: ['body', 'query', 'params', 'coookies'] // The order in which request properties are searched for incoming parameters
+                                                        // Once a parameter has been found it's not going to be overwritten by other properties
 });
+```
+
+
+### Router.api(req, res);
+
+A standard request handler implementation that will respond with the currently configured api for this router. Can be used to make
+it easier for developers to work with your API.
+
+```
+app.get('/', router.api);
+// => responds via res.jsonp() and prints current endpoint configuration
+```
+
+The api handler supports multiple formats that can be specified either through a get or path paramter named format:
+ 
+```
+app.get('/api/:format', router.api);
+// => can respond to e.g. /api/tree or /api?format=tree (which doesn't require the path variable).
+```
+
+The supported formats are ```json``` (default), ```tree```, ```table```, ```csv```, ```xml```
+
+
+### Router.endpoints;
+
+A map with the configuration of all the endpoints on this Router. Use this to build your own custom api handlers or to do more advanced
+configuration.
+
+```
+console.log(router.endpoints)
+// => { "path": { "method": { "description": "endpoint description", "params": {}}}}
 ```
 
 
@@ -137,12 +171,12 @@ or a more complex format as an object with more options:
             type: 'string',
             default: 'bob',
             required: false,
-            description: 'The users name'
-            min: 3,     // min characters for string, min value for number, ignored for boolean
-            max: 10,    // max characters for string, min value for number, ignored for boolean
-            validate: (value, cb) => { cb(err, value); }   // Function to override validation behavior
-            error: (value, req, res, next) => {}           // Function to override error behavior
-            success: (req, res, next) => {}                // Function to trigger on success, does not override request handler
+            description: 'The users name'       
+            min: 3,                                         // min characters for string, min value for number, ignored for boolean
+            max: 10,                                        // max characters for string, min value for number, ignored for boolean
+            validate: (value, cb) => { cb(err, value); }    // Function to override validation behavior
+            error: (error, req, res, next) => {}            // Function to override error behavior
+            success: (null, req, res, next) => {}           // Function to trigger on success, does not override request handler
         }
     }
 }

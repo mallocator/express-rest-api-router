@@ -2,15 +2,16 @@
 
 var express = require('express');
 
+var responder = require('./lib/responder');
 var verifier = require('./lib/verifier');
 
 
 /**
  * @typedef {Object} RouterConfig
  * @property {parseCb} [error]                  An error handler that overrides the default behavior for all params on this endpoint
- * @property {parseCb} [validate]               A validator the overrides the default behavior for all params on this endpoint
+ * @property {validateCb} [validate]            A validator the overrides the default behavior for all params on this endpoint
  * @property {parseCb} [success]                A success handler that overrides the default behavior for all params on this endpoint
- * @property {string} [mapEndpoint='/']         The default endpoint with which the api map can be retrieved
+ * @property {string} [paramMap=arguments]      The name of the request property where parsed parameters can be found for all endpoints
  * @property {string[]} [paramOrder]            The order in which parameters are parsed from the client object for all endpoints
  *                                              The default order is 'body', 'query', 'params', 'cookie' which map to express properties
  * @property {boolean} [caseSensitive=false]    Express router option to handle paths respecting case
@@ -26,9 +27,7 @@ var verifier = require('./lib/verifier');
  * @property {string} [description]
  * @property {number} [min]             min characters for string, min value for number, ignored for boolean
  * @property {number} [max]             max characters for string, min value for number, ignored for boolean
- * @property {parseCb} [error]          An error handler that overrides the default behavior for this parameter
- * @property {parseCb} [validate]       A validator the overrides the default behavior for this parameter
- * @property {parseCb} [success]        A success handler that overrides the default behavior for this parameter
+ * @property {validateCb} [validate]    A validator the overrides the default behavior for this parameter
  */
 
 /**
@@ -42,9 +41,10 @@ var verifier = require('./lib/verifier');
  * @typedef {Object} EndpointConfig
  * @property {string} [description]             A description for this endpoint
  * @property {parseCb} [error]                  A global error handler that overrides the default behavior
- * @property {parseCb} [validate]               A global validator the overrides the default behavior
+ * @property {validateCb} [validate]            A global validator the overrides the default behavior
  * @property {parseCb} [success]                A global success handler that overrides the default behavior
- * @property {string[]} [paramOrder]            The order in which parameters are parsed from the client object for this endpoint
+ * @property {string} [paramMap=arguments]      The name of the request property where parsed parameters can be found
+ * @property {string[]} [paramOrder]            The order in which parameters are parsed from the client object.
  *                                              The default order is 'body', 'query', 'params', 'cookies' which map to express properties
  * @property {Object.<string, ParamDef|String>} params A map with param definitions for each passed in parameter
  */
@@ -57,9 +57,16 @@ var verifier = require('./lib/verifier');
 /**
  * @callback parseCb
  * @param {ParseResult} error   An error callback that has information such as endpoints or missing parameters
- * @oaran {ClientRequest} req   The http request object
+ * @param {ClientRequest} req   The http request object
  * @param {ServerResponse} res  The http response object
  * @param {function} next       The chaining function that allows other handlers to be executed after this one
+ */
+
+/**
+ * @callback validateCb
+ * @param {ParamDef} config The configuration for this parameter
+ * @param {string} value    The value received from the request
+ * @returns {string}    An error message or any falsy value if the parameter is valid
  */
 
 /**
@@ -88,12 +95,26 @@ var methods = [
  */
 function Router(configuration = {}, router = express.Router(configuration)) {
     configuration.paramOrder = configuration.paramOrder || ['body', 'query', 'params', 'cookies'];
+    configuration.mapEndpoint = configuration.mapEndpoint || '/';
     var context = { endpoints: {}, router, globalConfiguration: configuration };
     for (let method of methods) {
         let original = router[method];
         router[method] = (...args) => verifier.configure.call(context, original, method, ...args)
     }
+    router.endpoints = context.endpoints;
+    router.api = api.bind(context);
     return router;
+}
+
+/**
+ * A standard request handler implementation that will respond with the currently configured api for this router. Can be used to make
+ * it easier for developers to work with your API.
+ * @param {ClientRequest} req
+ * @param {ServerResponse} res  A response object that has either jsonp, json or write as output methods.
+ */
+function api(req, res) {
+    // TODO support only returning part of the map via query/get parameters
+    responder.respond(req, res, this.endpoints);
 }
 
 module.exports = Router;
