@@ -95,7 +95,6 @@ var methods = [
  */
 function Router(configuration = {}, router = express.Router(configuration)) {
     configuration.paramOrder = configuration.paramOrder || ['body', 'query', 'params', 'cookies'];
-    configuration.mapEndpoint = configuration.mapEndpoint || '/';
     var context = { endpoints: {}, router, globalConfiguration: configuration };
     for (let method of methods) {
         let original = router[method];
@@ -109,11 +108,10 @@ function Router(configuration = {}, router = express.Router(configuration)) {
 /**
  * A standard request handler implementation that will respond with the currently configured api for this router. Can be used to make
  * it easier for developers to work with your API.
- * @param {ClientRequest} req
- * @param {ServerResponse} res  A response object that has either jsonp, json or write as output methods.
+ * @param {ClientRequest} req   An express client request object
+ * @param {ServerResponse} res  An express server response object
  */
 function api(req, res) {
-    // TODO support only returning part of the map via query/get parameters
     responder.respond(req, res, this.endpoints);
 }
 
