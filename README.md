@@ -44,10 +44,10 @@ http://myhost/endpoint (developer mode) =>
 Status Code 422 
 { 
     "error": "Required parameters are missing",
-    "params": {},
-    "required": {
+    "params": {
         "name": {
-            "type": "string"
+            "type": "string",
+            "error": "not set"
         }
     }
 }
