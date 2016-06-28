@@ -65,8 +65,9 @@ var verifier = require('./lib/verifier');
 
 /**
  * @callback validateCb
- * @param {ParamDef} config The configuration for this parameter
  * @param {string} value    The value received from the request
+ * @param {string} name     The name of the parameter that we're checking
+ * @param {ParamDef} config The configuration for this parameter
  * @returns {string}    An error message or any falsy value if the parameter is valid
  */
 

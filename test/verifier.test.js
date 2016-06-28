@@ -11,7 +11,7 @@ describe('verifier', () => {
     /**
      * @returns {ParamDef}
      */
-    function mkParam(type, def, required = true, min, max, error, validate, success) {
+    function mkParam(type, def, required = true, min, max) {
         var param = {
             array: type.endsWith('[]'),
             type: type.replace('[]', ''),
@@ -20,9 +20,6 @@ describe('verifier', () => {
         };
         min && (param.min = min);
         max && (param.max = max);
-        error && (param.error = error);
-        validate && (param.validate = validate);
-        success && (param.success = success);
         return param;
     }
 
@@ -326,14 +323,39 @@ describe('verifier', () => {
             var errors = verifier.checkParams(config, params);
             expect(errors).to.deep.equal({
                 age: {
-                    error: "value exceeds max value",
+                    error: 'value exceeds max value',
                     max: 10,
-                    type: "number"
+                    type: 'number'
                 },
                 name: {
-                    error: "value exceeds max value",
+                    error: 'value exceeds max value',
                     max: 5,
-                    type: "string"
+                    type: 'string'
+                }
+            });
+        });
+
+        it('should be able to use a custom validator', () => {
+            var ageDef = mkParam('number');
+            ageDef.validate = (value, name, config) => {
+                expect(value).to.equal(11);
+                expect(name).to.equal('age');
+                expect(config).to.deep.equal(ageDef);
+                return 'Test error';
+            };
+            var config = {
+                params: {
+                    age: ageDef
+                }
+            };
+            var params = {
+                age: 11
+            };
+            var errors = verifier.checkParams(config, params);
+            expect(errors).to.deep.equal({
+                age: {
+                    error: 'Test error',
+                    type: 'number'
                 }
             });
         });
@@ -382,6 +404,80 @@ describe('verifier', () => {
                 age: 25,
                 origin: 'unknown'
             })
+        });
+    });
+
+    describe('#verify()', () => {
+        it('should be able to use a custom error handler', done => {
+            var chain = () => {};
+            var request = {
+                route: {
+                    path: '/test'
+                },
+                method: 'GET',
+                params: {}
+            };
+            var response = {};
+            var context = {
+                globalConfiguration: {
+                    paramOrder: [ 'params' ]
+                },
+                endpoints: {
+                    '/test': {
+                        GET: {
+                            error: (error, req, res, next) => {
+                                expect(error).to.be.instanceOf(Error);
+                                expect(req).to.deep.equal(request);
+                                expect(res).to.deep.equal(response);
+                                expect(next).to.deep.equal(chain);
+                                done();
+                            },
+                            params: {
+                                age: 'number'
+                            }
+                        }
+                    }
+                }
+            };
+
+            verifier.verify.call(context, request, response, chain);
+        });
+
+        it('should be able to use a custom success handler', done => {
+            var chain = () => {};
+            var request = {
+                route: {
+                    path: '/test'
+                },
+                method: 'GET',
+                params: {}
+            };
+            var response = {
+                status: () => response,
+                json: () => response,
+                end: () => response
+            };
+            var context = {
+                endpoints: {
+                    '/test': {
+                        GET: {
+                            success: (error, req, res, next) => {
+                                expect(error).to.be.not.ok;
+                                expect(req).to.deep.equal(request);
+                                expect(res).to.deep.equal(response);
+                                expect(next).to.deep.equal(chain);
+                                done();
+                            },
+                            paramOrder: [ 'params' ],
+                            params: {
+                                age: 'number'
+                            }
+                        }
+                    }
+                }
+            };
+
+            verifier.verify.call(context, request, response, chain);
         });
     });
 });

@@ -140,7 +140,7 @@ describe('responder', () => {
             request(app).get('/unknownFormat').expect(422, 'Invalid format requested').end(done)
         });
 
-        it('should return a 204 status of the response is empty', done => {
+        it('should return a 204 status if the response is empty', done => {
             var app = express();
             app.get('/:format', (req, res) => responder.respond(req, res, {}));
 

@@ -141,4 +141,35 @@ describe('Router', () => {
         app.use(router);
         request(app).get('/test/25,30').expect(200).end(done);
     });
+
+    it('should return an api map', done => {
+        var router = Router();
+        var config = {
+            description: 'An express endpoint',
+            params: {
+                var1: 'number'
+            }
+        };
+
+        router.get('/test', config, (req, res) => {});
+
+        var app = express();
+        app.get('/api', router.api);
+        request(app).get('/api').expect(200, {
+            '/test': {
+                GET: {
+                    description: 'An express endpoint',
+                    paramMap: 'args',
+                    paramOrder: [ 'body', 'query', 'params', 'cookies' ],
+                    params: {
+                        var1: {
+                            array: false,
+                            required: true,
+                            type: 'number'
+                        }
+                    }
+                }
+            }
+        }).end(done);
+    });
 });
