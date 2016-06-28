@@ -3,6 +3,7 @@
 
 var expect = require('chai').expect;
 
+
 var verifier = require('../lib/verifier');
 
 
@@ -25,12 +26,119 @@ describe('verifier', () => {
     }
 
     describe('#configure()', () => {
-        it('should normalize the configuration parameters', () => {
-
+        it('should normalize the configuration parameters', done => {
+            var context = {
+                endpoints: {},
+                globalConfiguration: {
+                    paramOrder: [ 'query' ]
+                }
+            };
+            var config = {
+                description: 'This is a test',
+                params: {
+                    name: 'string()',
+                    age: 'number(30)',
+                    married: 'boolean'
+                }
+            };
+            var validator = function() {
+                expect(context.endpoints).to.deep.equal({
+                    "/test": {
+                        GET: {
+                            description: 'This is a test',
+                            paramMap: 'args',
+                            paramOrder: [ 'query' ],
+                            params: {
+                                age: {
+                                    default: 30,
+                                    required: false,
+                                    type: 'number',
+                                    error: undefined,
+                                    validate: undefined,
+                                    success: undefined
+                                },
+                                married: {
+                                    required: true,
+                                    type: 'boolean',
+                                    default: undefined,
+                                    error: undefined,
+                                    validate: undefined,
+                                    success: undefined
+                                },
+                                name: {
+                                    required: false,
+                                    type: 'string',
+                                    default: undefined,
+                                    error: undefined,
+                                    validate: undefined,
+                                    success: undefined
+                                }
+                            }
+                        }
+                    }
+                });
+                done();
+            };
+            verifier.configure.call(context, validator, 'get', '/test', config);
         });
 
-        it('should apply global configuration options to individual enpoints', () => {
-
+        it('should apply global configuration options to individual endpoints', done => {
+            var context = {
+                endpoints: {},
+                globalConfiguration: {
+                    paramOrder: [ 'query' ],
+                    error: 'error method',
+                    validate: 'validate method',
+                    success: 'success method'
+                }
+            };
+            var config = {
+                description: 'This is a test',
+                params: {
+                    name: 'string()',
+                    age: 'number(30)',
+                    married: 'boolean'
+                }
+            };
+            var validator = function() {
+                expect(context.endpoints).to.deep.equal({
+                    "/test": {
+                        GET: {
+                            description: 'This is a test',
+                            paramMap: 'args',
+                            paramOrder: [ 'query' ],
+                            params: {
+                                age: {
+                                    default: 30,
+                                    required: false,
+                                    type: 'number',
+                                    error: 'error method',
+                                    validate: 'validate method',
+                                    success: 'success method'
+                                },
+                                married: {
+                                    required: true,
+                                    type: 'boolean',
+                                    default: undefined,
+                                    error: 'error method',
+                                    validate: 'validate method',
+                                    success: 'success method'
+                                },
+                                name: {
+                                    required: false,
+                                    type: 'string',
+                                    default: undefined,
+                                    error: 'error method',
+                                    validate: 'validate method',
+                                    success: 'success method'
+                                }
+                            }
+                        }
+                    }
+                });
+                done();
+            };
+            verifier.configure.call(context, validator, 'get', '/test', config);
         });
     });
 
@@ -70,12 +178,36 @@ describe('verifier', () => {
     });
 
     describe('#getParams()', () => {
-        it('should return all parameters parsed in the default order', () => {
-
-        });
-
-        it('should return all parameters parsed with a custom order', () => {
-
+        it('should return all parameters parsed in the right order', () => {
+            var config = {
+                paramOrder: ['params', 'query', 'body'],
+                params: {
+                    name: {
+                        type: 'string'
+                    },
+                    age: {
+                        type: 'number'
+                    }
+                }
+            };
+            var request = {
+                params: {
+                    name: 'Dough'
+                },
+                query: {
+                    age: 30,
+                    name: 'Doe'
+                },
+                body: {
+                    age: 25,
+                    name: 'Doh'
+                }
+            };
+            var response = verifier.getParams(config, request);
+            expect(response).to.deep.equal({
+                name: 'Dough',
+                age: 30
+            });
         });
     });
 

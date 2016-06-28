@@ -11,7 +11,7 @@ var Router = require('..');
 
 describe('Router', () => {
     it('should process normal requests same as the default router', done => {
-        var router = new Router();
+        var router = Router();
         router.get('/test', (req, res) => res.end('success'));
 
         var app = express();
@@ -23,7 +23,7 @@ describe('Router', () => {
     it('should verify all incoming parameters', done => {
         process.env.NODE_ENV = '';
 
-        var router = new Router();
+        var router = Router();
         router.get('/test', {
             params: {
                 var1: 'number'
@@ -39,7 +39,7 @@ describe('Router', () => {
     it('should verify all incoming parameters and complain about missing ones in development mode', done => {
         process.env.NODE_ENV = 'development';
 
-        var router = new Router();
+        var router = Router();
         router.get('/test', {
             params: {
                 var1: 'number',

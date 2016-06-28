@@ -18,15 +18,17 @@ It's probably easier to just show an example of what the router does.
 Example configuration:
 
 ```
-var Router = new (require('express-rest-api-router));
+var Router = require('express-rest-api-router);
 
-Router.get('/endpoint', {
+var router = Router();
+
+router.get('/endpoint', {
     description: 'An example endpoint',
     params: {
         name: 'string'
     }
 }, (req, res) => {
-    res.end('hello ' + req.arguments.name); 
+    res.end('hello ' + req.args.name); 
 });
 
 app.use(Router);
@@ -77,12 +79,13 @@ Status Code 200
 
 ## API
 
-### new Router([configuration])
+### Router([configuration])
 
 The router comes with sensible default values preconfigured, but various behavior can be overridden through the configuration
  
 ```
-new Router({
+var Router = require('express-rest-api-router);
+var router = Router({
     error: (value, req, res, next) => {},               // A global error handler that overrides the default behavior
     success: (value, req, res, next) => {},             // A success error handler that overrides the default behavior
     validate: (value, req, res, next) => {},            // A global validator the overrides the default behavior
