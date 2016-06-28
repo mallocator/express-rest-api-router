@@ -20,7 +20,23 @@ describe('Router', () => {
         request(app).get('/test').expect(200, 'success').end(done);
     });
 
-    it('should verify all incoming parameters and complain about missing ones', done => {
+    it('should verify all incoming parameters', done => {
+        process.env.NODE_ENV = '';
+
+        var router = new Router();
+        router.get('/test', {
+            params: {
+                var1: 'number'
+            }
+        }, (req, res) => res.end('success'));
+
+        var app = express();
+        app.use(router);
+
+        request(app).get('/test').expect(422).end(done);
+    });
+
+    it('should verify all incoming parameters and complain about missing ones in development mode', done => {
         process.env.NODE_ENV = 'development';
 
         var router = new Router();
