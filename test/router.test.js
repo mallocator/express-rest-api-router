@@ -17,18 +17,19 @@ describe('Router', () => {
 
         var app = express();
         app.use(router);
-
         request(app).get('/test').expect(200, 'success').end(done);
     });
 
     it('should make all incoming and default parameters available on the request handler', done => {
         var router = Router();
-        router.get('/test', {
+        var config = {
             params: {
                 var1: 'number',
                 var2: 'string(foo)'
             }
-        }, (req, res) => {
+        };
+
+        router.get('/test', config, (req, res) => {
             expect(req.args.var1).to.equal(25);
             expect(req.args.var2).to.equal('foo');
             res.end('success');
@@ -36,19 +37,20 @@ describe('Router', () => {
 
         var app = express();
         app.use(router);
-
         request(app).get('/test?var1=25').expect(200).end(done);
     });
 
     it('should make all be able to use parameters from multiple sources', done => {
         var router = Router();
-        router.get('/test/:var3', {
+        var config = {
             params: {
                 var1: 'number',
                 var2: 'string(foo)',
                 var3: 'bool'
             }
-        }, (req, res) => {
+        };
+
+        router.get('/test/:var3', config, (req, res) => {
             expect(req.args.var1).to.equal(25);
             expect(req.args.var2).to.equal('foo');
             expect(req.args.var3).to.equal(true);
@@ -57,7 +59,6 @@ describe('Router', () => {
 
         var app = express();
         app.use(router);
-
         request(app).get('/test/true?var1=25').expect(200).end(done);
     });
 
@@ -65,15 +66,15 @@ describe('Router', () => {
         process.env.NODE_ENV = '';
 
         var router = Router();
-        router.get('/test', {
+        var config = {
             params: {
                 var1: 'number'
             }
-        }, (req, res) => res.end('success'));
+        };
+        router.get('/test', config, (req, res) => res.end('success'));
 
         var app = express();
         app.use(router);
-
         request(app).get('/test').expect(422).end(done);
     });
 
@@ -81,7 +82,7 @@ describe('Router', () => {
         process.env.NODE_ENV = 'development';
 
         var router = Router();
-        router.get('/test', {
+        var config = {
             params: {
                 var1: 'number',
                 var2: 'number(1)',
@@ -90,11 +91,11 @@ describe('Router', () => {
                 var5: 'boolean',
                 var6: 'boolean(true)'
             }
-        }, (req, res) => res.end('success'));
+        };
+        router.get('/test', config, (req, res) => res.end('success'));
 
         var app = express();
         app.use(router);
-
         request(app).get('/test').expect(422, {
             error: 'Required parameters are missing',
             params: {

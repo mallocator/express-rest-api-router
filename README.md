@@ -201,4 +201,4 @@ supported in body requests) can be defined by simply nesting definitions:
 Support for arrays is tbd. most likely it will be supported transparently.
 
 
-For more examples check out the test directory
+For more examples check out [router.test.js](test/router.test.js) the test directory
