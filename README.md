@@ -26,7 +26,7 @@ Router.get('/endpoint', {
         name: 'string'
     }
 }, (req, res) => {
-    res.end('hello ' + req.params.name); 
+    res.end('hello ' + req.arguments.name); 
 });
 
 app.use(Router);

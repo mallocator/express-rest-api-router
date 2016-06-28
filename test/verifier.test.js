@@ -81,33 +81,162 @@ describe('verifier', () => {
 
     describe('#checkParams()', () => {
         it('should not reject an empty parameter list', () => {
-
+            var config = {
+                params: {
+                    age: mkParam('number')
+                }
+            };
+            var errors = verifier.checkParams(config, {});
+            expect(errors).to.deep.equal({
+                age: {
+                    error: "not set",
+                    type: "number"
+                }
+            });
         });
 
         it('should return an error for each missing parameters', () => {
-
+            var config = {
+                params: {
+                    age: mkParam('number'),
+                    name: mkParam('string')
+                }
+            };
+            var errors = verifier.checkParams(config, {});
+            expect(errors).to.deep.equal({
+                age: {
+                    error: "not set",
+                    type: "number"
+                },
+                name: {
+                    error: "not set",
+                    type: "string"
+                }
+            });
         });
 
         it('should allow a request with all parameters set to pass', () => {
-
+            var config = {
+                params: {
+                    age: mkParam('number'),
+                    name: mkParam('string')
+                }
+            };
+            var params = {
+                age: 25,
+                name: 'Jauhn Dough'
+            };
+            var errors = verifier.checkParams(config, params);
+            expect(errors).to.deep.equal({});
         });
 
         it('should ignore params that have an empty or non empty default setting', () => {
+            var config = {
+                params: {
+                    age: mkParam('number', 30, false),
+                    name: mkParam('string', 'Jauhn Dough', false)
+                }
+            };
+            var errors = verifier.checkParams(config, {});
+            expect(errors).to.deep.equal({});
+        });
 
+        it('should check that minimum limits are respected', () => {
+            var config = {
+                params: {
+                    age: mkParam('number', undefined, true, 10),
+                    name: mkParam('string', undefined, true, 5)
+                }
+            };
+            var params = {
+                age: 9,
+                name: '1234'
+            };
+            var errors = verifier.checkParams(config, params);
+            expect(errors).to.deep.equal({
+                age: {
+                    error: "value below min value",
+                    min: 10,
+                    type: "number"
+                },
+                name: {
+                    error: "value below min value",
+                    min: 5,
+                    type: "string"
+                }
+            });
+        });
+
+        it('should check that maximum limits are respected', () => {
+            var config = {
+                params: {
+                    age: mkParam('number', undefined, true, undefined, 10),
+                    name: mkParam('string', undefined, true, undefined, 5)
+                }
+            };
+            var params = {
+                age: 11,
+                name: '123456'
+            };
+            var errors = verifier.checkParams(config, params);
+            expect(errors).to.deep.equal({
+                age: {
+                    error: "value exceeds max value",
+                    max: 10,
+                    type: "number"
+                },
+                name: {
+                    error: "value exceeds max value",
+                    max: 5,
+                    type: "string"
+                }
+            });
         });
     });
 
     describe('#fillParams()', () => {
         it('should fill parameters with the right primitive types', () => {
-
+            var config = {
+                params: {
+                    age: mkParam('number', 25),
+                    name: mkParam('string', 'Jauhn Dough')
+                }
+            };
+            var result = verifier.fillParams(config, {});
+            expect(result.age).to.equal(25);
+            expect(result.age).to.not.equal('25');
+            expect(result.name).to.equal('Jauhn Dough');
         });
 
         it('should keep empty defaults as undefined', () => {
-
+            var config = {
+                params: {
+                    age: mkParam('number')
+                }
+            };
+            var result = verifier.fillParams(config, {});
+            expect(result).to.deep.equal({
+                age: undefined
+            })
         });
 
         it('should only fill parameters that haven\'t been set yet', () => {
-
+            var config = {
+                params: {
+                    age: mkParam('number', 25),
+                    name: mkParam('string', 'Jauhn Dough')
+                }
+            };
+            var params = {
+                name: 'The Narrator',
+                origin: 'unknown'
+            };
+            var result = verifier.fillParams(config, params);
+            expect(result).to.deep.equal({
+                name: 'The Narrator',
+                age: 25,
+                origin: 'unknown'
+            })
         });
     });
 });

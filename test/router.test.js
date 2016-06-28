@@ -8,6 +8,7 @@ var request = require('supertest');
 
 var Router = require('..');
 
+
 describe('Router', () => {
     it('should process normal requests same as the default router', done => {
         var router = new Router();
