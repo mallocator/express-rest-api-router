@@ -146,5 +146,19 @@ describe('responder', () => {
 
             request(app).get('/any?format=xml').expect(204).end(done)
         });
+
+        it('should respond with the api as a textual json tree', done => {
+            var app = express();
+            app.get('/:format', (req, res) => responder.respond(req, res, {
+                description: 'This is a test',
+                params: {
+                    age: 'number'
+                }
+            }));
+
+            request(app).get('/tree').expect(200, '<html><body style="white-space: pre">{\n    ' +
+                '"description": "This is a test",\n    "params": {\n        "age": "number"\n    }\n}' +
+                '</body></html>').end(done)
+        });
     });
 });
