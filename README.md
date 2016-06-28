@@ -157,11 +157,14 @@ A simple string field that allows to set a description of the endpoint.
 #### Router.params
 
 An object that describes the expected parameters for this endpoint. Each parameter is defined as a property of the params object. The parameter definition
-supports either a simple string definition in the format of ```type(default)```:
+supports either a simple string definition in the format of ```type(default)``` or ```type(default)```:
 ```
 {
     params: {
-        name: 'string(bob)'
+        aReqioredNumber: 'number',
+        anOptionalString: 'string(bob)',
+        aRequiredArray: 'string[]',
+        anOptionalArray: 'bool[](true, false, false)
     }
 }
 ```
@@ -185,20 +188,10 @@ or a more complex format as an object with more options:
 }
 ```
 
-Valid types that can be used are: ```boolean```, ```number```, ```string```. Complex Objects (which are only
-supported in body requests) can be defined by simply nesting definitions:
-```
-{
-    params: {
-        user: {
-            name: 'string(bob)',
-            age: 'number(30)'
-        }
-    }
-}
-```
+Valid types that can be used are: ```bool```, ```number```, ```string```. 
+Arrays of each type can also be used: ```bool[]```, ```number[]```, ```string[]```.
 
-Support for arrays is tbd. most likely it will be supported transparently.
-
+Support for complex objects is only possible in body requests and is tbd. (no support in this plugin so far)
 
 For more examples check out [router.test.js](test/router.test.js) the test directory
+

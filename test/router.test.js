@@ -105,4 +105,40 @@ describe('Router', () => {
             }
         }).end(done);
     });
+
+    it('should support arrays in get parameters', done => {
+        var router = Router();
+        var config = {
+            params: {
+                var1: 'number[]'
+            }
+        };
+
+        router.get('/test', config, (req, res) => {
+            expect(req.args.var1).to.deep.equal([25, 30]);
+            res.end('success');
+        });
+
+        var app = express();
+        app.use(router);
+        request(app).get('/test?var1=25&var1=30').expect(200).end(done);
+    });
+
+    it('should support arrays in query parameters', done => {
+        var router = Router();
+        var config = {
+            params: {
+                var1: 'number[]'
+            }
+        };
+
+        router.get('/test/:var1', config, (req, res) => {
+            expect(req.args.var1).to.deep.equal([25, 30]);
+            res.end('success');
+        });
+
+        var app = express();
+        app.use(router);
+        request(app).get('/test/25,30').expect(200).end(done);
+    });
 });

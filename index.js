@@ -21,10 +21,11 @@ var verifier = require('./lib/verifier');
 
 /**
  * @typedef {Object} ParamDef
- * @property {string} type
- * @property {*} [default]
- * @property {boolean} [required=false]
- * @property {string} [description]
+ * @property {string} type              The data type that this parameter is expected to be
+ * @property {*} [default]              The default value to set the parameter to if it's not coming in through the request
+ * @property {boolean} [required=false] Whether the request should be rejected if this parameter is missing
+ * @property {boolean} [array=false]    Whether the incoming parameter is expected to be treated like an array
+ * @property {string} [description]     A description of the parameter that will be printed with the endpoints api info
  * @property {number} [min]             min characters for string, min value for number, ignored for boolean
  * @property {number} [max]             max characters for string, min value for number, ignored for boolean
  * @property {validateCb} [validate]    A validator the overrides the default behavior for this parameter

@@ -13,7 +13,8 @@ describe('verifier', () => {
      */
     function mkParam(type, def, required = true, min, max, error, validate, success) {
         var param = {
-            type,
+            array: type.endsWith('[]'),
+            type: type.replace('[]', ''),
             default: def,
             required
         };
@@ -52,6 +53,7 @@ describe('verifier', () => {
                                 age: {
                                     default: 30,
                                     required: false,
+                                    array: false,
                                     type: 'number',
                                     error: undefined,
                                     validate: undefined,
@@ -59,6 +61,7 @@ describe('verifier', () => {
                                 },
                                 married: {
                                     required: true,
+                                    array: false,
                                     type: 'boolean',
                                     default: undefined,
                                     error: undefined,
@@ -67,6 +70,7 @@ describe('verifier', () => {
                                 },
                                 name: {
                                     required: false,
+                                    array: false,
                                     type: 'string',
                                     default: undefined,
                                     error: undefined,
@@ -110,6 +114,7 @@ describe('verifier', () => {
                             params: {
                                 age: {
                                     default: 30,
+                                    array: false,
                                     required: false,
                                     type: 'number',
                                     error: 'error method',
@@ -118,6 +123,7 @@ describe('verifier', () => {
                                 },
                                 married: {
                                     required: true,
+                                    array: false,
                                     type: 'boolean',
                                     default: undefined,
                                     error: 'error method',
@@ -126,6 +132,7 @@ describe('verifier', () => {
                                 },
                                 name: {
                                     required: false,
+                                    array: false,
                                     type: 'string',
                                     default: undefined,
                                     error: 'error method',
@@ -174,6 +181,12 @@ describe('verifier', () => {
             expect(verifier.parseParam({ type: 'string', required: false })).to.deep.equal(mkParam('string', undefined, false));
             expect(verifier.parseParam({ type: 'string', required: true })).to.deep.equal(mkParam('string', undefined, true));
             expect(verifier.parseParam({ type: 'string', default: 'test'})).to.deep.equal(mkParam('string', 'test', false));
+        });
+
+        it('should parse array version of all types', () => {
+            expect(verifier.parseParam('string[]')).to.deep.equal(mkParam('string[]'));
+            expect(verifier.parseParam('number[]()')).to.deep.equal(mkParam('number[]', undefined, false));
+            expect(verifier.parseParam('bool[](false, true,true)')).to.deep.equal(mkParam('bool[]', [false, true, true], false));
         });
     });
 
