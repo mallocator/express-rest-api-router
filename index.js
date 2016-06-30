@@ -1,5 +1,7 @@
 'use strict';
 
+var path = require('path');
+
 var express = require('express');
 
 var responder = require('./lib/responder');
@@ -8,6 +10,7 @@ var verifier = require('./lib/verifier');
 
 /**
  * @typedef {Object} RouterConfig
+ * @property {string} [prefix]                  An optional prefix that will be used when generating the api map
  * @property {parseCb} [error]                  An error handler that overrides the default behavior for all params on this endpoint
  * @property {validateCb} [validate]            A validator the overrides the default behavior for all params on this endpoint
  * @property {parseCb} [success]                A success handler that overrides the default behavior for all params on this endpoint
@@ -97,14 +100,40 @@ var methods = [
  */
 function Router(configuration = {}, router = express.Router(configuration)) {
     configuration.paramOrder = configuration.paramOrder || ['body', 'query', 'params', 'cookies'];
+    configuration.prefix = normalizePrefix(configuration.prefix);
     var context = { endpoints: {}, router, globalConfiguration: configuration };
     for (let method of methods) {
         let original = router[method];
         router[method] = (...args) => verifier.configure.call(context, original, method, ...args)
     }
-    router.endpoints = context.endpoints;
+    router.__defineGetter__('endpoints', prefixEndpoints.bind(context));
     router.api = api.bind(context);
     return router;
+}
+
+/**
+ * Returns either an empty string or a normalized path of the prefix
+ * @param {string} prefix
+ * @returns {string}
+ */
+function normalizePrefix(prefix) {
+    if (!prefix || typeof prefix !== 'string' || !prefix.trim().length) {
+        return '';
+    }
+    return path.normalize(prefix);
+}
+
+/**
+ * Getter implementation that will return the currently configured enpoints.
+ * @returns {Object.<string, Object.<string, EndpointConfig>>} Api map with endpoint config nested in path and method.
+ * @this Context
+ */
+function prefixEndpoints(prefix = this.globalConfiguration.prefix) {
+    var map = {};
+    for (let prop in this.endpoints) {
+        map[path.join(prefix, prop)] = Object.assign({}, this.endpoints[prop]);
+    }
+    return map;
 }
 
 /**
@@ -112,9 +141,13 @@ function Router(configuration = {}, router = express.Router(configuration)) {
  * it easier for developers to work with your API.
  * @param {ClientRequest} req   An express client request object
  * @param {ServerResponse} res  An express server response object
+ * @this Context
  */
 function api(req, res) {
-    responder.respond(req, res, this.endpoints);
+    var url = req.originalUrl;
+    var prefix = url.substr(0, url.lastIndexOf(req.route.path));
+    prefix = prefix.substr(0, prefix.lastIndexOf(this.globalConfiguration.prefix));
+    responder.respond(req, res, prefixEndpoints.call(this, prefix.length ? prefix : this.globalConfiguration.prefix));
 }
 
 module.exports = Router;

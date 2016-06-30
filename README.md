@@ -86,6 +86,7 @@ The router comes with sensible default values preconfigured, but various behavio
 ```
 var Router = require('express-rest-api-router);
 var router = Router({
+    prefix: '/path'                                     // A prefix for the api map that will be prepended when printing it via router.api or router.endpoints
     error: (value, req, res, next) => {},               // A global error handler that overrides the default behavior
     success: (value, req, res, next) => {},             // A success error handler that overrides the default behavior
     validate: (value, req, res, next) => {},            // A global validator the overrides the default behavior

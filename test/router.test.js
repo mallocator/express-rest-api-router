@@ -172,4 +172,128 @@ describe('Router', () => {
             }
         }).end(done);
     });
+
+    it('should return a prefixed api path', done => {
+        var router = Router({ prefix: '/prefix' });
+        var config = {
+            description: 'An express endpoint',
+            params: {
+                var1: 'number'
+            }
+        };
+
+        router.get('/test', config, (req, res) => {});
+
+        expect(router.endpoints).to.deep.equal({
+            '/prefix/test': {
+                GET: {
+                    description: 'An express endpoint',
+                    paramMap: 'args',
+                    paramOrder: [ 'body', 'query', 'params', 'cookies' ],
+                    params: {
+                        var1: {
+                            array: false,
+                            required: true,
+                            type: 'number',
+                            default: undefined,
+                            error: undefined,
+                            success: undefined,
+                            validate: undefined
+                        }
+                    }
+                }
+            }
+        });
+
+        var app = express();
+        app.get('/api', router.api);
+        request(app).get('/api').expect(200, {
+            '/prefix/test': {
+                GET: {
+                    description: 'An express endpoint',
+                    paramMap: 'args',
+                    paramOrder: [ 'body', 'query', 'params', 'cookies' ],
+                    params: {
+                        var1: {
+                            array: false,
+                            required: true,
+                            type: 'number'
+                        }
+                    }
+                }
+            }
+        }).end(done);
+    });
+
+    it('should return a nested api path', done => {
+        var app = express();
+
+        var parentRouter = Router();
+        app.use('/parent', parentRouter);
+
+        var router = Router();
+        parentRouter.use('/nested', router);
+
+        var config = {
+            description: 'An express endpoint',
+            params: {
+                var1: 'number'
+            }
+        };
+        router.get('/test', config, (req, res) => {});
+        router.get('/api', router.api);
+
+        request(app).get('/parent/nested/api').expect(200, {
+            '/parent/nested/test': {
+                GET: {
+                    description: 'An express endpoint',
+                    paramMap: 'args',
+                    paramOrder: [ 'body', 'query', 'params', 'cookies' ],
+                    params: {
+                        var1: {
+                            array: false,
+                            required: true,
+                            type: 'number'
+                        }
+                    }
+                }
+            }
+        }).end(done);
+    });
+
+    it('should allow the user to overwrite the api prefix', done => {
+        var app = express();
+
+        var parentRouter = Router();
+        app.use('/parent', parentRouter);
+
+        var router = Router({ prefix: '/custom'});
+        parentRouter.use('/nested', router);
+
+        var config = {
+            description: 'An express endpoint',
+            params: {
+                var1: 'number'
+            }
+        };
+        router.get('/test', config, (req, res) => {});
+        router.get('/api', router.api);
+
+        request(app).get('/parent/nested/api').expect(200, {
+            '/custom/test': {
+                GET: {
+                    description: 'An express endpoint',
+                    paramMap: 'args',
+                    paramOrder: [ 'body', 'query', 'params', 'cookies' ],
+                    params: {
+                        var1: {
+                            array: false,
+                            required: true,
+                            type: 'number'
+                        }
+                    }
+                }
+            }
+        }).end(done);
+    });
 });
