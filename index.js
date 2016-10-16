@@ -104,7 +104,14 @@ function Router(configuration = {}, router = express.Router(configuration)) {
     var context = { endpoints: {}, router, globalConfiguration: configuration };
     for (let method of methods) {
         let original = router[method];
-        router[method] = (...args) => verifier.configure.call(context, original, method, ...args)
+        router[method] = (path, config, ...handlers) => {
+            if (typeof config == 'function') {
+                handlers.unshift(config);
+                config = null;
+            }
+            let middleware = verifier.configure.call(context, {method, path, config});
+            original.call(router, path, middleware, ...handlers);
+        }
     }
     router.__defineGetter__('endpoints', prefixEndpoints.bind(context));
     router.api = api.bind(context);

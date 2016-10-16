@@ -24,7 +24,7 @@ describe('verifier', () => {
     }
 
     describe('#configure()', () => {
-        it('should normalize the configuration parameters', done => {
+        it('should normalize the configuration parameters', () => {
             var context = {
                 endpoints: {},
                 globalConfiguration: {
@@ -39,51 +39,52 @@ describe('verifier', () => {
                     married: 'boolean'
                 }
             };
-            var validator = function() {
-                expect(context.endpoints).to.deep.equal({
-                    "/test": {
-                        GET: {
-                            description: 'This is a test',
-                            paramMap: 'args',
-                            paramOrder: [ 'query' ],
-                            params: {
-                                age: {
-                                    default: 30,
-                                    required: false,
-                                    array: false,
-                                    type: 'number',
-                                    error: undefined,
-                                    validate: undefined,
-                                    success: undefined
-                                },
-                                married: {
-                                    required: true,
-                                    array: false,
-                                    type: 'boolean',
-                                    default: undefined,
-                                    error: undefined,
-                                    validate: undefined,
-                                    success: undefined
-                                },
-                                name: {
-                                    required: false,
-                                    array: false,
-                                    type: 'string',
-                                    default: undefined,
-                                    error: undefined,
-                                    validate: undefined,
-                                    success: undefined
-                                }
+            verifier.configure.call(context, {
+                method: 'get',
+                path: '/test',
+                config
+            });
+            expect(context.endpoints).to.deep.equal({
+                "/test": {
+                    GET: {
+                        description: 'This is a test',
+                        paramMap: 'args',
+                        paramOrder: ['query'],
+                        params: {
+                            age: {
+                                default: 30,
+                                required: false,
+                                array: false,
+                                type: 'number',
+                                error: undefined,
+                                validate: undefined,
+                                success: undefined
+                            },
+                            married: {
+                                required: true,
+                                array: false,
+                                type: 'boolean',
+                                default: undefined,
+                                error: undefined,
+                                validate: undefined,
+                                success: undefined
+                            },
+                            name: {
+                                required: false,
+                                array: false,
+                                type: 'string',
+                                default: undefined,
+                                error: undefined,
+                                validate: undefined,
+                                success: undefined
                             }
                         }
                     }
-                });
-                done();
-            };
-            verifier.configure.call(context, validator, 'get', '/test', config);
+                }
+            });
         });
 
-        it('should apply global configuration options to individual endpoints', done => {
+        it('should apply global configuration options to individual endpoints', () => {
             var context = {
                 endpoints: {},
                 globalConfiguration: {
@@ -101,48 +102,49 @@ describe('verifier', () => {
                     married: 'boolean'
                 }
             };
-            var validator = function() {
-                expect(context.endpoints).to.deep.equal({
-                    "/test": {
-                        GET: {
-                            description: 'This is a test',
-                            paramMap: 'args',
-                            paramOrder: [ 'query' ],
-                            params: {
-                                age: {
-                                    default: 30,
-                                    array: false,
-                                    required: false,
-                                    type: 'number',
-                                    error: 'error method',
-                                    validate: 'validate method',
-                                    success: 'success method'
-                                },
-                                married: {
-                                    required: true,
-                                    array: false,
-                                    type: 'boolean',
-                                    default: undefined,
-                                    error: 'error method',
-                                    validate: 'validate method',
-                                    success: 'success method'
-                                },
-                                name: {
-                                    required: false,
-                                    array: false,
-                                    type: 'string',
-                                    default: undefined,
-                                    error: 'error method',
-                                    validate: 'validate method',
-                                    success: 'success method'
-                                }
+            verifier.configure.call(context, {
+                method: 'get',
+                path: '/test',
+                config
+            });
+            expect(context.endpoints).to.deep.equal({
+                "/test": {
+                    GET: {
+                        description: 'This is a test',
+                        paramMap: 'args',
+                        paramOrder: ['query'],
+                        params: {
+                            age: {
+                                default: 30,
+                                array: false,
+                                required: false,
+                                type: 'number',
+                                error: 'error method',
+                                validate: 'validate method',
+                                success: 'success method'
+                            },
+                            married: {
+                                required: true,
+                                array: false,
+                                type: 'boolean',
+                                default: undefined,
+                                error: 'error method',
+                                validate: 'validate method',
+                                success: 'success method'
+                            },
+                            name: {
+                                required: false,
+                                array: false,
+                                type: 'string',
+                                default: undefined,
+                                error: 'error method',
+                                validate: 'validate method',
+                                success: 'success method'
                             }
                         }
                     }
-                });
-                done();
-            };
-            verifier.configure.call(context, validator, 'get', '/test', config);
+                }
+            });
         });
     });
 
